@@ -2,15 +2,28 @@ const express = require("express");
 
 const app = express();
 
-app.use("/hello",(req,res) => {
-    res.send(
-        "<h1>hello from the server.</h1>"
-    )
-})
+app.use("/user",(req,res,next) => {
+    next()
+    res.send("Response!!")
+    
+},
+(req,res,next) => {
+    next()
+    res.send("Response 1!")
+},
+(req,res,next) => {
+    next()
+    res.send("Response 2!")
+},
+(req,res,next) => {
+    next()
+    res.send("Response 3!")
+}
+)
 
-app.use("/",(req,res) => {
-    res.send("hello hello hello!");
-})
+
+
+
 
 app.listen(3000,() => {
     console.log("Server is listening on port 3000");
