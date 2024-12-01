@@ -60,12 +60,58 @@ app.get("/username",async (req,res) => {
 
 })
 
+app.get("/userId",async (req,res) => {
+    const userid = req.body._id;
+
+    try {
+        const user = await User.findById(userid);
+        if (!user){
+            res.status(404).send("User not Found");
+        }else{
+            res.send(user);
+        }
+    } catch (error) {
+        res.status(400).send("Something went wrong!!!")
+    }
+})
+
 app.get("/",(req,res) => {
      res.send("hello welcome to devtinder.")
     // console.log("<h1>Welcome to dev Tinder</h1>");
 })
 
+app.delete("/delete",async (req,res) => {
+    const userId = req.body.userId;
 
+    try {
+        // shorthand of {_id : userId} === userId directly.
+       const user = await User.findByIdAndDelete(userId);
+    //    if (!user){
+    //         res.status(404).send("User not found.")
+    //    } else{
+        res.send("user deleted Sucessfully");
+    //    }
+    } catch (error) {
+        res.status(400).send("something went wrong!!")
+    }
+})
+
+app.patch("/user",async (req,res) => {
+    const userId = req.body.userId;
+    const data = req.body;
+
+    // console.log(req.body);
+
+    try {
+        const user = await User.findByIdAndUpdate({_id: userId},data,{returnDocument: "after"}
+        );
+        console.log(user);
+        
+        res.send("User Updated Sucessfully!!")
+    } catch (error) {
+        res.status(400).send("User details updated sucessfully.")
+    }
+})
 
 connectDB().then(() => {
     console.log("Database connection established");
