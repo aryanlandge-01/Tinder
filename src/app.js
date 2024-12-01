@@ -1,6 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const User = require("./models/user")
+const User = require("./models/user");
+const { Model } = require("mongoose");
 const app = express();
 
 // Api for user Signup.
@@ -26,6 +27,38 @@ app.post("/signup",async (req,res) => {
     }
 
 });
+
+app.get("/feed",async (req,res) => {
+    try {
+        const users = await User.find({});
+        res.send(users);
+    } catch (error) {
+        res.status(400).send("Something went Wrong.!!")
+    }
+})
+
+app.get("/username",async (req,res) => {
+    // res.send("You will get the userinfo here.")
+    const useremail = req.body.emailId;
+    
+    try {
+        const users = await User.findOne({});
+
+        // handling the error.
+        if(!users){
+            res.status(404).send("User not Found");
+        }else{
+            res.send(users);
+        }
+        
+    } catch (error) {
+        res.status(400).send("Something went wrong!!");
+        // console.log(error);
+    }
+    // finding user via it's email.
+    
+
+})
 
 app.get("/",(req,res) => {
      res.send("hello welcome to devtinder.")
