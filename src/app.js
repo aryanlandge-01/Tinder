@@ -23,7 +23,7 @@ app.post("/signup",async (req,res) => {
         await user.save();
         res.send("user added sucessfully!!!!")
     } catch (error) {
-        res.status(400).send("Error saving the user:" + err.message)
+        res.status(400).send("Error saving the user:" + error.message)
     }
 
 });
@@ -42,7 +42,7 @@ app.get("/username",async (req,res) => {
     const useremail = req.body.emailId;
     
     try {
-        const users = await User.findOne({});
+        const users = await User.findOne({emailId: useremail});
 
         // handling the error.
         if(!users){
@@ -96,22 +96,56 @@ app.delete("/delete",async (req,res) => {
     }
 })
 
-app.patch("/user",async (req,res) => {
-    const userId = req.body.userId;
+app.patch("/user/:userId",async (req,res) => {
+    const userId = req.params?.userId;
     const data = req.body;
 
     // console.log(req.body);
 
     try {
-        const user = await User.findByIdAndUpdate({_id: userId},data,{returnDocument: "after"}
+        // API level Validation.
+        const ALLOWED_UPDATES = ["photoUrl","about","age","gender","skills"];
+
+        const isUpdateAllowed = Object.keys(data).every((k) => 
+            ALLOWED_UPDATES.includes(k)
         );
-        console.log(user);
+
+        if (!isUpdateAllowed){
+            throw new Error("Update not allowed")
+        }
+
+        if (data?.skills.length > 10) {
+            throw new Error("Skills cannnot be more than 10.")
+        }
+
+
+        const user = await User.findByIdAndUpdate(
+            {_id: userId},
+            data,
+            {
+            returnDocument: "after",
+            runValidators: true
+            }
+        );
+        // console.log(user);
+        if (!user){
+            res.status(404).send("user not found.")
+        }else {
+            res.send("user details updated sucessfully.")
+        }
         
-        res.send("User Updated Sucessfully!!")
+        
     } catch (error) {
-        res.status(400).send("User details updated sucessfully.")
+        res.status(400).send("User details not updated sucessfully." + error.message)
     }
 })
+
+
+
+
+
+
+
 
 connectDB().then(() => {
     console.log("Database connection established");
