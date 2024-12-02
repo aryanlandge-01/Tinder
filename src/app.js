@@ -85,7 +85,7 @@ app.delete("/delete",async (req,res) => {
 
     try {
         // shorthand of {_id : userId} === userId directly.
-       const user = await User.findByIdAndDelete(userId);
+       const user = await User.deleteMany();
     //    if (!user){
     //         res.status(404).send("User not found.")
     //    } else{
@@ -100,10 +100,10 @@ app.patch("/user/:userId",async (req,res) => {
     const userId = req.params?.userId;
     const data = req.body;
 
-    // console.log(req.body);
+    console.log(req.body);
 
     try {
-        // API level Validation.
+        // API level Validation or Data Santization.
         const ALLOWED_UPDATES = ["photoUrl","about","age","gender","skills"];
 
         const isUpdateAllowed = Object.keys(data).every((k) => 
@@ -114,9 +114,9 @@ app.patch("/user/:userId",async (req,res) => {
             throw new Error("Update not allowed")
         }
 
-        if (data?.skills.length > 10) {
-            throw new Error("Skills cannnot be more than 10.")
-        }
+        // if (data?.skills.length > 10) {
+        //     throw new Error("Skills cannnot be more than 10.")
+        // }
 
 
         const user = await User.findByIdAndUpdate(
@@ -127,7 +127,7 @@ app.patch("/user/:userId",async (req,res) => {
             runValidators: true
             }
         );
-        // console.log(user);
+        
         if (!user){
             res.status(404).send("user not found.")
         }else {
