@@ -2,6 +2,9 @@ const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const { Model } = require("mongoose");
+const {validateSignUpData} = require("./utils/validation");
+const bcrypt = require('bcrypt');
+const validator = require('validator');
 const app = express();
 
 // Api for user Signup.
@@ -10,16 +13,28 @@ app.use(express.json());
 
 
 app.post("/signup",async (req,res) => {
-    // const userObj = {
-    //     firstName: "Phil",
-    //     lastName: "Dhumphy",
-    //     emailId: "aryanlandge@gmail.com",
-    //     password: "ganstaparadise"
-    // };
-    // // creating a new instance of user model.
-    const user = new User(req.body);
-
+    
     try {
+        // validation 
+        validateSignUpData(req)
+
+        // Destructering the Data
+        const {firstName,lastName,emailId,skills,age,gender,password} = req.body;
+
+        // encrpt the password
+        const passwordHash = await bcrypt.hash(password,10)
+        console.log(passwordHash)
+
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash,
+            age,
+            skills,
+            gender
+        })
+
         await user.save();
         res.send("user added sucessfully!!!!")
     } catch (error) {
@@ -27,6 +42,35 @@ app.post("/signup",async (req,res) => {
     }
 
 });
+
+app.post("/login",async(req,res) => {
+    try {
+        const {emailId,password} = req.body;
+
+        if(!validator.isEmail(emailId)){
+            throw new Error("Invalid email address.")
+        }
+
+        const user = await User.findOne({emailId: emailId});
+
+        if (!user){
+            throw new Error("Invalid Credentials.");
+        }
+
+        // match the password.
+        const isPasswordValid = await bcrypt.compare(password,user.password);
+
+        if(!isPasswordValid){
+            throw new Error("Invalid Credentials.")
+        }else{
+            res.send("Login Sucessfully.")
+        }
+        
+
+    } catch (error) {
+        res.status(400).send("Don't have any account signup please." + error)
+    }
+})
 
 app.get("/feed",async (req,res) => {
     try {
