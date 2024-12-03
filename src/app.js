@@ -5,11 +5,16 @@ const { Model } = require("mongoose");
 const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const {userAuth} = require('./middlewares/auth');
 const app = express();
 
 // Api for user Signup.
 
 app.use(express.json());
+app.use(cookieParser());
+// app.use(userAuth());
 
 
 app.post("/signup",async (req,res) => {
@@ -63,13 +68,29 @@ app.post("/login",async(req,res) => {
         if(!isPasswordValid){
             throw new Error("Invalid Credentials.")
         }else{
-            res.send("Login Sucessfully.")
+            // Create a JWT Token
+            const token = await jwt.sign({_id: user._id},"Heil@007") 
+            // console.log(token);
+            
+        
+            // Add the token to cookie and send the response back to the user.
+            res.cookie("token",token);
+            res.send("Login Sucessfully.");
         }
         
 
     } catch (error) {
         res.status(400).send("Don't have any account signup please." + error)
     }
+})
+
+app.get("/profile",userAuth,async(req,res) => {
+   try { 
+    const user = req.user;
+    res.send(user)
+   } catch (error) {
+       res.status(400).send("Something went wrong.")
+   }
 })
 
 app.get("/feed",async (req,res) => {
@@ -183,12 +204,6 @@ app.patch("/user/:userId",async (req,res) => {
         res.status(400).send("User details not updated sucessfully." + error.message)
     }
 })
-
-
-
-
-
-
 
 
 connectDB().then(() => {
