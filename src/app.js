@@ -69,12 +69,17 @@ app.post("/login",async(req,res) => {
             throw new Error("Invalid Credentials.")
         }else{
             // Create a JWT Token
-            const token = await jwt.sign({_id: user._id},"Heil@007") 
+            const token = await jwt.sign({_id: user._id},"Heil@007", {
+                expiresIn: "7d",
+            }) 
             // console.log(token);
             
         
             // Add the token to cookie and send the response back to the user.
-            res.cookie("token",token);
+            res.cookie("token",token,{
+                expires: new Date(Date.now() + 8 * 3600000),
+            });
+
             res.send("Login Sucessfully.");
         }
         
@@ -93,117 +98,31 @@ app.get("/profile",userAuth,async(req,res) => {
    }
 })
 
-app.get("/feed",async (req,res) => {
+app.post("/sendConnectionRequest",userAuth,async (req,res) => {
+    // const user = req.user;
+    // console.log("Sending the connection request!!!");
     try {
-        const users = await User.find({});
-        res.send(users);
+        const user = req.user;
+        console.log(user);
+        const name = user.firstName;
+        res.send(name + " Sent you Connection Request.🔗")
     } catch (error) {
-        res.status(400).send("Something went Wrong.!!")
+        res.status(400).send(
+            "Something went wrong." 
+            +
+            error
+        )
     }
-})
-
-app.get("/username",async (req,res) => {
-    // res.send("You will get the userinfo here.")
-    const useremail = req.body.emailId;
     
-    try {
-        const users = await User.findOne({emailId: useremail});
+});
 
-        // handling the error.
-        if(!users){
-            res.status(404).send("User not Found");
-        }else{
-            res.send(users);
-        }
-        
-    } catch (error) {
-        res.status(400).send("Something went wrong!!");
-        // console.log(error);
-    }
-    // finding user via it's email.
-    
 
-})
-
-app.get("/userId",async (req,res) => {
-    const userid = req.body._id;
-
-    try {
-        const user = await User.findById(userid);
-        if (!user){
-            res.status(404).send("User not Found");
-        }else{
-            res.send(user);
-        }
-    } catch (error) {
-        res.status(400).send("Something went wrong!!!")
-    }
-})
 
 app.get("/",(req,res) => {
      res.send("hello welcome to devtinder.")
     // console.log("<h1>Welcome to dev Tinder</h1>");
 })
 
-app.delete("/delete",async (req,res) => {
-    const userId = req.body.userId;
-
-    try {
-        // shorthand of {_id : userId} === userId directly.
-       const user = await User.deleteMany();
-    //    if (!user){
-    //         res.status(404).send("User not found.")
-    //    } else{
-        res.send("user deleted Sucessfully");
-    //    }
-    } catch (error) {
-        res.status(400).send("something went wrong!!")
-    }
-})
-
-app.patch("/user/:userId",async (req,res) => {
-    const userId = req.params?.userId;
-    const data = req.body;
-
-    console.log(req.body);
-
-    try {
-        // API level Validation or Data Santization.
-        const ALLOWED_UPDATES = ["photoUrl","about","age","gender","skills"];
-
-        const isUpdateAllowed = Object.keys(data).every((k) => 
-            ALLOWED_UPDATES.includes(k)
-        );
-
-        if (!isUpdateAllowed){
-            throw new Error("Update not allowed")
-        }
-
-        // if (data?.skills.length > 10) {
-        //     throw new Error("Skills cannnot be more than 10.")
-        // }
-
-
-        const user = await User.findByIdAndUpdate(
-            {_id: userId},
-            data,
-            {
-            returnDocument: "after",
-            runValidators: true
-            }
-        );
-        
-        if (!user){
-            res.status(404).send("user not found.")
-        }else {
-            res.send("user details updated sucessfully.")
-        }
-        
-        
-    } catch (error) {
-        res.status(400).send("User details not updated sucessfully." + error.message)
-    }
-})
 
 
 connectDB().then(() => {
