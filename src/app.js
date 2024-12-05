@@ -17,107 +17,20 @@ app.use(cookieParser());
 // app.use(userAuth());
 
 
-app.post("/signup",async (req,res) => {
-    
-    try {
-        // validation 
-        validateSignUpData(req)
 
-        // Destructering the Data
-        const {firstName,lastName,emailId,skills,age,gender,password} = req.body;
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');
 
-        // encrpt the password
-        const passwordHash = await bcrypt.hash(password,10)
-        console.log(passwordHash)
-
-        const user = new User({
-            firstName,
-            lastName,
-            emailId,
-            password: passwordHash,
-            age,
-            skills,
-            gender
-        })
-
-        await user.save();
-        res.send("user added sucessfully!!!!")
-    } catch (error) {
-        res.status(400).send("Error saving the user:" + error.message)
-    }
-
-});
-
-app.post("/login",async(req,res) => {
-    try {
-        const {emailId,password} = req.body;
-
-        if(!validator.isEmail(emailId)){
-            throw new Error("Invalid email address.")
-        }
-
-        const user = await User.findOne({emailId: emailId});
-
-        if (!user){
-            throw new Error("Invalid Credentials.");
-        }
-
-        // match the password.
-        const isPasswordValid = await user.validatePassword(password);
-
-        if(!isPasswordValid){
-            throw new Error("Invalid Credentials.")
-        }else{
-            // Create a JWT Token offloaded login to the User Schema Method.
-            const token = await user.getJWT();
-            
-            // Add the token to cookie and send the response back to the user.
-            res.cookie("token",token,{
-                expires: new Date(Date.now() + 8 * 3600000),
-            });
-
-            res.send("Login Sucessfully.");
-        }
-        
-
-    } catch (error) {
-        res.status(400).send("Don't have any account signup please." + error)
-    }
-})
-
-app.get("/profile",userAuth,async(req,res) => {
-   try { 
-    const user = req.user;
-    res.send(user)
-   } catch (error) {
-       res.status(400).send("Something went wrong.")
-   }
-})
-
-app.post("/sendConnectionRequest",userAuth,async (req,res) => {
-    // const user = req.user;
-    // console.log("Sending the connection request!!!");
-    try {
-        const user = req.user;
-        console.log(user);
-        const name = user.firstName;
-        res.send(name + " Sent you Connection Request.🔗")
-    } catch (error) {
-        res.status(400).send(
-            "Something went wrong." 
-            +
-            error
-        )
-    }
-    
-});
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
 
 
-
-app.get("/",(req,res) => {
-     res.send("hello welcome to devtinder.")
-    // console.log("<h1>Welcome to dev Tinder</h1>");
-})
+// app.get("/",(req,res) => {
+//      res.send("hello welcome to devtinder.")
+//     // console.log("<h1>Welcome to dev Tinder</h1>");
+// })
 
 
 
