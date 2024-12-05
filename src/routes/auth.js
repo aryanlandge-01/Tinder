@@ -17,7 +17,7 @@ authRouter.post("/signup",async (req,res) => {
 
         // encrpt the password
         const passwordHash = await bcrypt.hash(password,10)
-        console.log(passwordHash)
+        // console.log(passwordHash)
 
         const user = new User({
             firstName,
@@ -80,6 +80,34 @@ authRouter.post("/logout",async (req,res) => {
     });
 
     res.send("You are successfully logout from the system.");
+})
+
+authRouter.patch("/forgotpassword",async (req,res) => {
+    try {
+        const emailId = req.body.emailId;
+        const newPassword = req.body.newPassword;
+
+        if(!validator.isEmail(emailId)){
+            throw new Error("Invalid Email Address.")
+        }
+
+        const user = await User.findOne({emailId: emailId});
+
+        if (user) {
+
+            const passwordHash = await bcrypt.hash(newPassword,10);
+
+            const updatedPassword = await User.findByIdAndUpdate(user._id,{password: passwordHash});
+
+            res.send("Password has been updated Successfully.")
+
+        } else {
+            throw new Error("Signup Please!!!")
+        }
+
+    } catch (error) {
+        res.status(400).send("Something went wrong." + error.message)
+    }
 })
 
 module.exports = authRouter;
