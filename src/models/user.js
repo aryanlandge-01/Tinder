@@ -72,6 +72,9 @@ const userSchema = new mongoose.Schema({
 }
 );
 
+// Database indexing.
+userSchema.index({firstName: 1,lastName: 1});
+
 // const UserModel = mongoose.model("User",userSchema);
 
 userSchema.methods.getJWT = async function () {
