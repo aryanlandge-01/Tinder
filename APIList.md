@@ -13,8 +13,9 @@
 
 ## Connections API
 - POST /request/send/:status/:userId
-
 - POST /request/review/:status/:requestId
+
+status: ignore,interested,accepted,rejected.
 
 
 ## User Data
@@ -23,4 +24,4 @@
 - GET /user/feed - Gets you the profile of other users.
 
 
-status: ignore,interested,accepted,rejected.
+
