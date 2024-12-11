@@ -29,10 +29,10 @@ app.use("/",requestRouter);
 app.use("/",userRouter);
 
 
-// app.get("/",(req,res) => {
-//      res.send("hello welcome to devtinder.")
-//     // console.log("<h1>Welcome to dev Tinder</h1>");
-// })
+app.get("/",(req,res) => {
+     res.send("hello welcome to devtinder.")
+    // console.log("<h1>Welcome to dev Tinder</h1>");
+})
 
 
 
