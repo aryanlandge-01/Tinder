@@ -23,7 +23,7 @@ userRouter.get(
 
        
 
-            console.log(connectionRequest);
+            // console.log(connectionRequest);
             
 
             res.json({
