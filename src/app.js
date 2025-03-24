@@ -1,4 +1,5 @@
 const express = require("express");
+require('dotenv').config();
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const { Model } = require("mongoose");
@@ -10,6 +11,7 @@ const jwt = require('jsonwebtoken');
 const {userAuth} = require('./middlewares/auth');
 const cors = require("cors");
 const app = express();
+
 
 
 // Api for user Signup.

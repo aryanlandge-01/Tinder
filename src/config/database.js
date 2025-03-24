@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 // Referance to the cluster.
+console.log(process.env.DB_CONNECTION_SECRET)
 
 const connectDB = async() => {
     await mongoose.connect(
-        "mongodb+srv://landgearyan0:Heil%40007@cluster0.49bey.mongodb.net/devTinder"
+        process.env.DB_CONNECTION_SECRET
     );
 };
 
