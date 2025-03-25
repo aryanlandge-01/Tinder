@@ -12,6 +12,8 @@ const {userAuth} = require('./middlewares/auth');
 const cors = require("cors");
 const app = express();
 
+require("./utils/cronjob");
+
 
 
 // Api for user Signup.
