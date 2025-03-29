@@ -11,6 +11,8 @@ const jwt = require('jsonwebtoken');
 const {userAuth} = require('./middlewares/auth');
 const cors = require("cors");
 const app = express();
+const http = require('http');
+const initiazeSocket = require("./utils/socket")
 
 require("./utils/cronjob");
 
@@ -43,12 +45,12 @@ app.get("/",(req,res) => {
      res.send("hello welcome to devtinder.")
     // console.log("<h1>Welcome to dev Tinder</h1>");
 })
-
-
+const server = http.createServer(app);
+initiazeSocket(server);
 
 connectDB().then(() => {
     console.log("Database connection established");
-    app.listen(3000,() => {
+    server.listen(3000,() => {
         console.log("Server is listening on port 3000");
     })
 }).catch(err => {
